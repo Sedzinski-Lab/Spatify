@@ -57,7 +57,7 @@ def process_text_files_with_distance(root_directory, reference_image_path=None):
             else:
                 outline = np.loadtxt(roi_candidates[0])
 
-                # --- Step 1: Create binary mask from outline ---
+                # Create binary mask from outline
                 outline = np.round(outline).astype(int)
                 if reference_image_path:
                     ref_img = imread(reference_image_path)
@@ -74,13 +74,13 @@ def process_text_files_with_distance(root_directory, reference_image_path=None):
 
                 filled_mask = binary_fill_holes(mask)
 
-                # --- Step 2: Determine inside/outside from mask ---
+                # Determine inside/outside from mask
                 int_coords = np.round(coords).astype(int)
                 int_coords[:, 0] = np.clip(int_coords[:, 0], 0, img_shape[1]-1)
                 int_coords[:, 1] = np.clip(int_coords[:, 1], 0, img_shape[0]-1)
                 inside_mask = filled_mask[int_coords[:, 1], int_coords[:, 0]]
 
-                # --- Step 3: Distance using KDTree ---
+                # Distance using KDTree
                 tree = KDTree(outline)
                 distances, _ = tree.query(coords, k=1)
 
@@ -90,12 +90,12 @@ def process_text_files_with_distance(root_directory, reference_image_path=None):
             # Add metadata
             df['Source_File'] = file_name
             df['Stage'] = time_stage
-            df['Time'] = folder_name
+            df['Time'] = folder_name.replace('_', '.')
 
             all_data = pd.concat([all_data, df], ignore_index=True)
 
         except Exception as e:
-            print(f"❌ Error processing {file_path}: {e}")
+            print(f"Error processing {file_path}: {e}")
 
     return all_data
 
